@@ -1,0 +1,11 @@
+<form
+  class="dynamic-form"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()">
+  <ng-container
+    *ngFor="let field of config"
+    fgDynamicField
+    [config]="field"
+    [group]="form">
+  </ng-container>
+</form>
