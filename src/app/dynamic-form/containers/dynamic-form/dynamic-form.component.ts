@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'fg-dynamic-form',
@@ -25,8 +25,9 @@ export class DynamicFormComponent implements OnInit {
   createFormGroup() {
     const newGroup = this.fb.group({});
     this.config.forEach(control => {
-      if (control.type !== 'button') {
-        newGroup.addControl(control.name, this.fb.control(control.value));
+      if (control.type.toLowerCase() !== 'button') {
+        const validatorsList = control.validators ? this.buildNgValidatorsList(control.validators) : [];
+        newGroup.addControl(control.name, this.fb.control(control.value, validatorsList));
       }
     });
 
@@ -35,6 +36,15 @@ export class DynamicFormComponent implements OnInit {
 
   onSubmit() {
     this.submitted.emit(this.form);
+  }
+
+  private buildNgValidatorsList(controlValidators: string[]) {
+    return controlValidators.map((validatorString) => {
+      const validatorMethodArgArray = validatorString.split('=');
+      return validatorMethodArgArray.length > 1
+        ? Validators[validatorMethodArgArray[0]](validatorMethodArgArray[1])
+        : Validators[validatorString];
+    });
   }
 
 }
